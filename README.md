@@ -15,7 +15,7 @@ Thank you so much!
 - virtio-blk
 
 # How to run
-[This page](https://zig-vmm.pibvt.net/) is provided by Ubuntu 22.10 running on zig-vmm.
+[This page](https://zig-vmm.pibvt.net/) is provided with Ubuntu 22.10 running on `zig-vmm`.
 
 ## Build Ubuntu RootFS
 Run `create_ubuntu_rootfs.sh` to build ubuntu 22.10 rootFS.
