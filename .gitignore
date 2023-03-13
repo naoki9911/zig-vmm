@@ -1,0 +1,7 @@
+/zig-cache
+/zig-out
+/tmp
+/ubuntu2210-base.img
+/ubuntu-22.10-server-cloudimg-amd64-root.tar.xz
+/initrd.img-*
+/vmlinuz-*
