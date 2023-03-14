@@ -3,17 +3,52 @@ const log = @import("log.zig");
 const vm = @import("vm.zig");
 const console = @import("console.zig");
 const allocator = std.heap.page_allocator;
+const argsParser = @import("zig-args");
 
 const memSize = 1 << 30;
 
-pub fn main() !void {
-    if (std.os.argv.len >= 2 and std.mem.eql(u8, "console", std.mem.span(std.os.argv[1]))) {
+pub fn printCmdline() void {
+    std.debug.print("  --initramfs <path to initramfs>", .{});
+    std.debug.print("  --vmlinuz <path to vmlinuz>", .{});
+    std.debug.print("  --disk_img <path to disk image>", .{});
+    std.debug.print("  --console_client : run console client", .{});
+}
+
+pub fn main() !u8 {
+    const options = argsParser.parseForCurrentProcess(struct {
+        // This declares long options for double hyphen
+        initramfs: ?[]const u8 = null,
+        vmlinuz: ?[]const u8 = null,
+        disk_img: ?[]const u8 = null,
+        console_client: bool = false,
+
+        // This declares short-hand options for single hyphen
+        pub const shorthands = .{};
+    }, allocator, .print) catch return 1;
+    defer options.deinit();
+
+    if (options.options.console_client) {
         log.info("starting console", .{});
         var c = console.Console.init();
         try c.clientStart();
     } else {
-        var v = try vm.VM.init("./vmlinuz-5.19.0-1018-kvm", "./initrd.img-5.19.0-1018-kvm", "./ubuntu2210-base.img", memSize, allocator);
+        if (options.options.initramfs == null) {
+            _ = try std.io.getStdErr().writer().write("--initramfs is not specified\n");
+            return 1;
+        }
+        if (options.options.vmlinuz == null) {
+            _ = try std.io.getStdErr().writer().write("--vmlinuz is not specified\n");
+            return 1;
+        }
+        var v: vm.VM = undefined;
+        if (options.options.disk_img) |img| {
+            v = try vm.VM.init(options.options.vmlinuz.?, options.options.initramfs.?, img, memSize, allocator);
+        } else {
+            v = try vm.VM.init(options.options.vmlinuz.?, options.options.initramfs.?, "", memSize, allocator);
+        }
         try v.create();
         try v.run();
     }
+
+    return 0;
 }

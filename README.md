@@ -38,7 +38,7 @@ If `zig-vmm` is successfully built, `zig-out/bin/zig-vmm` exists.
 ## Run zig-vmm
 Run `zig-vmm` with sudo.
 ```console
-$ sudo ./zig-out/bin/zig-vmm
+$ sudo ./zig-out/bin/zig-vmm --initramfs initrd.img-5.19.0-1018-kvm --vmlinuz vmlinuz-5.19.0-1018-kvm --disk_img ubuntu2210-base.img
 
 INFO  [2023-03-13 05:01:29 9025]: KVM_GET_API_VERSION=12
 INFO  [2023-03-13 05:01:29 9025]: KVM_CAP_USER_MEMORY is available
@@ -49,7 +49,7 @@ INFO  [2023-03-13 05:01:29 9025]: waiting console client connection...
 It waits for the console client connection.
 In an another terminal, run console client.
 ```console
-$ sudo ./zig-out/bin/zig-vmm console
+$ sudo ./zig-out/bin/zig-vmm --console_client
 
 INFO  [2023-03-13 05:02:36 9104]: starting console
 INFO  [2023-03-13 05:02:36 9104]: configured terminal to raw mode
