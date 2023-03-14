@@ -8,10 +8,10 @@ const argsParser = @import("zig-args");
 const memSize = 1 << 30;
 
 pub fn printCmdline() void {
-    std.debug.print("  --initramfs <path to initramfs>", .{});
-    std.debug.print("  --vmlinuz <path to vmlinuz>", .{});
-    std.debug.print("  --disk_img <path to disk image>", .{});
-    std.debug.print("  --console_client : run console client", .{});
+    std.debug.print("  --initramfs <path to initramfs>\n", .{});
+    std.debug.print("  --vmlinuz <path to vmlinuz>\n", .{});
+    std.debug.print("  --disk_img <path to disk image>\n", .{});
+    std.debug.print("  --console_client : run console client\n", .{});
 }
 
 pub fn main() !u8 {
@@ -21,11 +21,16 @@ pub fn main() !u8 {
         vmlinuz: ?[]const u8 = null,
         disk_img: ?[]const u8 = null,
         console_client: bool = false,
+        help: bool = false,
 
         // This declares short-hand options for single hyphen
         pub const shorthands = .{};
     }, allocator, .print) catch return 1;
     defer options.deinit();
+    if (options.options.help) {
+        printCmdline();
+        return 0;
+    }
 
     if (options.options.console_client) {
         log.info("starting console", .{});
