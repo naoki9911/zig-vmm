@@ -33,7 +33,7 @@ pub const VM = struct {
     const bootParamAddr = 0x10000;
     const cmdlineAddr = 0x20000;
     const kernelAddr = 0x100000;
-    const initrdAddr = 0xf000000;
+    var initrdAddr: u32 = 0x1000000;
     const Self = @This();
     const Error = error{
         MMapFailed,
@@ -74,12 +74,15 @@ pub const VM = struct {
         }
         self.serial = serial.Serial.init(self.vmfd, &self.con);
 
+        var bzImage_mem = try loader.loadFile(self.bzImage, self.allocator);
+        defer self.allocator.free(bzImage_mem);
+
+        initrdAddr = @intCast(u32, (((kernelAddr + bzImage_mem.len) >> 24) + 1) << 24);
+        log.info("kernelAddr=0x{x}", .{kernelAddr});
+        log.info("initrdAddr=0x{x}", .{initrdAddr});
         const initrd_buf = try loader.loadFile(self.initrd, self.allocator);
         defer self.allocator.free(initrd_buf);
         std.mem.copy(u8, self.mem[initrdAddr..], initrd_buf);
-
-        var bzImage_mem = try loader.loadFile(self.bzImage, self.allocator);
-        defer self.allocator.free(bzImage_mem);
 
         // https://kernel.googlesource.com/pub/scm/linux/kernel/git/penberg/linux/+/kvmtool/next/tools/kvm/Documentation/virtio-console.txt
         // dyndbg=\"file drivers/char/virtio_console.c +plf ; file drivers/virtio/virtio_ring.c +plf\"

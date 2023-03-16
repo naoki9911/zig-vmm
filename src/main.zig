@@ -5,6 +5,7 @@ const console = @import("console.zig");
 const allocator = std.heap.page_allocator;
 const argsParser = @import("zig-args");
 
+// 1GiB
 const memSize = 1 << 30;
 
 pub fn printCmdline() void {
